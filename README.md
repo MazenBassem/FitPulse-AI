@@ -4,14 +4,14 @@
 
 ## 👤 Participant
 
-| Field | Value |
-| --- | --- |
-| Full Name | Mazen Bassem |
-| Project Name | FitPulse AI |
-| GitHub Username | MazenBassem |
-| Challenge Batch | June–July 2026 |
-| Training Program | Large Language Models (LLMs) Program |
-| Organization | **[Edrak for Ai](https://www.google.com/search?q=https://edrak4ai.com/en)** |
+| Field            | Value                                                                       |
+| ---------------- | --------------------------------------------------------------------------- |
+| Full Name        | Mazen Bassem                                                                |
+| Project Name     | FitPulse AI                                                                 |
+| GitHub Username  | MazenBassem                                                                 |
+| Challenge Batch  | June–July 2026                                                              |
+| Training Program | Large Language Models (LLMs) Program                                        |
+| Organization     | **[Edrak for Ai](https://www.google.com/search?q=https://edrak4ai.com/en)** |
 
 ---
 
@@ -25,21 +25,21 @@ The architecture uses a hybrid pipeline designed for efficiency: local GPU infer
 
 # ✨ Features
 
-* **Custom Fine-Tuned LLM (`fitpulse-ai`):** Specialized GGUF model (`Q4_K_M`) optimized for precise fitness routines, macro breakdowns, and formatted JSON output.
-* **Multimodal InBody Scan Analysis:** Parses base64-encoded body composition reports directly through Ollama's vision capabilities.
-* **Real-Time Token Streaming:** High-performance async token streaming using `StreamingResponse` for sub-second visual feedback.
-* **Dynamic Exercise Card Parsing:** Automatic frontend regex extraction of structured `[EXERCISE: {...}]` tags to display interactive exercise cards.
-* **CORS-Proof Image Proxy:** Built-in proxy endpoint (`/api/image`) to handle dynamic exercise media fetching without browser CORS restrictions.
-* **Hybrid Distributed Execution:** Seamless tunnel-based linkage connecting local hardware, cloud backend runtimes, and web frontends.
+- **Custom Fine-Tuned LLM (`fitpulse-ai`):** Specialized GGUF model (`Q4_K_M`) optimized for precise fitness routines, macro breakdowns, and formatted JSON output.
+- **Multimodal InBody Scan Analysis:** Parses base64-encoded body composition reports directly through Ollama's vision capabilities.
+- **Real-Time Token Streaming:** High-performance async token streaming using `StreamingResponse` for sub-second visual feedback.
+- **Dynamic Exercise Card Parsing:** Automatic frontend regex extraction of structured `[EXERCISE: {...}]` tags to display interactive exercise cards.
+- **CORS-Proof Image Proxy:** Built-in proxy endpoint (`/api/image`) to handle dynamic exercise media fetching without browser CORS restrictions.
+- **Hybrid Distributed Execution:** Seamless tunnel-based linkage connecting local hardware, cloud backend runtimes, and web frontends.
 
 ---
 
 # 🛠️ Technologies Used
 
-* **Language Model & Inference:** Unsloth, Qwen2.5-7B-Instruct, GGUF Quantization (`Q4_K_M`), Ollama, ChatML Format.
-* **Backend Framework:** Python 3.12, FastAPI, Uvicorn, `httpx`, `pyngrok`, `nest_asyncio`, Pydantic.
-* **Tunnels & Networking:** Cloudflare Tunnels (`cloudflared`), Ngrok.
-* **Frontend:** React, Vite, JavaScript (ES6+), Modern CSS.
+- **Language Model & Inference:** Unsloth, Qwen2.5-7B-Instruct, GGUF Quantization (`Q4_K_M`), Ollama, ChatML Format.
+- **Backend Framework:** Python 3.12, FastAPI, Uvicorn, `httpx`, `pyngrok`, `nest_asyncio`, Pydantic.
+- **Tunnels & Networking:** Cloudflare Tunnels (`cloudflared`), Ngrok.
+- **Frontend:** React, Vite, JavaScript (ES6+), Modern CSS.
 
 ---
 
@@ -55,14 +55,13 @@ cd fitpulse-ai
 
 ### 2. Environment Prerequisites
 
-* Install **Ollama** locally from [ollama.com](https://www.google.com/search?q=https://ollama.com/).
-* Install **Cloudflare Tunnels (`cloudflared`)** on your local machine:
+- Install **Ollama** locally from [ollama.com](https://www.google.com/search?q=https://ollama.com/).
+- Install **Cloudflare Tunnels (`cloudflared`)** on your local machine:
+
 ```powershell
 winget install --id Cloudflare.cloudflared
 
 ```
-
-
 
 ### 3. Backend Python Dependencies
 
@@ -90,21 +89,21 @@ npm install
 ### Step 1: Terminal Command to Run Ollama & Cloudflare Tunnel (Local Machine)
 
 1. Open **PowerShell** on your local PC, configure Ollama to accept incoming connections, and start the local engine:
+
 ```powershell
 $env:OLLAMA_HOST="0.0.0.0"
 ollama serve
 
 ```
 
-
 2. Open a **second terminal window** and launch a Cloudflare Tunnel to expose your local Ollama port (`11434`) to your cloud backend:
+
 ```powershell
 cloudflared tunnel --url http://localhost:11434
 
 ```
 
-
-*Copy the generated `.trycloudflare.com` URL from the output (e.g., `[https://your-subdomain.trycloudflare.com](https://your-subdomain.trycloudflare.com)`).*
+_Copy the generated `.trycloudflare.com` URL from the output (e.g., `[https://your-subdomain.trycloudflare.com](https://your-subdomain.trycloudflare.com)`)._
 
 ---
 
@@ -112,14 +111,15 @@ cloudflared tunnel --url http://localhost:11434
 
 1. Open your Kaggle / Jupyter notebook containing your FastAPI application code.
 2. In the `server.py` code cell, update `LOCAL_OLLAMA_TUNNEL` with your active Cloudflare URL:
+
 ```python
 LOCAL_OLLAMA_TUNNEL = "https://your-subdomain.trycloudflare.com"
 
 ```
 
-
 3. Run the `%%writefile server.py` cell to generate the file on disk.
 4. Execute the server launcher cell to purge cached modules and start Uvicorn with Ngrok:
+
 ```python
 import sys
 import uvicorn
@@ -146,26 +146,25 @@ await server.serve()
 
 ```
 
-
-*Copy the generated `[https://xxxx.ngrok-free.app/api/chat](https://xxxx.ngrok-free.app/api/chat)` URL.*
+_Copy the generated `[https://xxxx.ngrok-free.app/api/chat](https://xxxx.ngrok-free.app/api/chat)` URL._
 
 ---
 
 ### Step 3: Command to Run the React Frontend App
 
 1. In your terminal, navigate to your React project directory:
+
 ```bash
 cd frontend
 
 ```
 
-
 2. Start the Vite development server:
+
 ```bash
 npm run dev
 
 ```
-
 
 3. Open `http://localhost:5173` in your browser.
 4. Paste the **Ngrok `/api/chat` endpoint** into the top API configuration bar and start chatting or uploading InBody scans!
@@ -174,7 +173,7 @@ npm run dev
 
 # 📸 Demo
 
-*(Include screenshots of your React UI, streaming responses, and exercise card rendering here)*
+_(Include screenshots of your React UI, streaming responses, and exercise card rendering here)_
 
 ```
 +-----------------------------------------------------------------------+
@@ -197,17 +196,17 @@ npm run dev
 
 # 📈 Results
 
-* **Optimized Model Execution:** Successfully quantized fine-tuned model weights to 4-bit (`Q4_K_M`), keeping VRAM usage under 6 GB while maintaining text quality.
-* **Low-Latency Streaming:** Reduced initial Response Time to First Token (TTFT) significantly via HTTP stream piping across Cloudflare and Ngrok tunnels.
-* **Multimodal Capability:** Achieved accurate extraction of fat mass, muscle balance, and basal metabolic rate directly from user-uploaded InBody images.
+- **Optimized Model Execution:** Successfully quantized fine-tuned model weights to 4-bit (`Q4_K_M`), keeping VRAM usage under 6 GB while maintaining text quality.
+- **Low-Latency Streaming:** Reduced initial Response Time to First Token (TTFT) significantly via HTTP stream piping across Cloudflare and Ngrok tunnels.
+- **Multimodal Capability:** Achieved accurate extraction of fat mass, muscle balance, and basal metabolic rate directly from user-uploaded InBody images.
 
 ---
 
 # 🔮 Future Improvements
 
-* **User Profile Memory:** Add persistent vector database storage for long-term workout history and user fitness goals.
-* **Macro Tracker Tooling:** Implement automated JSON schema parsers for calorie/macro counting directly into a visual dashboard.
-* **Enhanced Visual Cards:** Integrate short demonstration video clips inside the exercise card parser.
+- **User Profile Memory:** Add persistent vector database storage for long-term workout history and user fitness goals.
+- **Macro Tracker Tooling:** Implement automated JSON schema parsers for calorie/macro counting directly into a visual dashboard.
+- **Enhanced Visual Cards:** Integrate short demonstration video clips inside the exercise card parser.
 
 ---
 
