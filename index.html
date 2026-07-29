@@ -142,6 +142,7 @@
       .upload-label:hover,
       .preset:hover,
       .send:hover,
+      .stop-btn:hover,
       .remove:hover,
       .bookmark-toggle-btn:hover {
         border-color: var(--border-strong);
@@ -261,7 +262,7 @@
       }
 
       .hidden {
-        display: none;
+        display: none !important;
       }
 
       .preview-wrap {
@@ -358,6 +359,22 @@
       .send:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+      }
+
+      .stop-btn {
+        min-width: 100px;
+        border: 1px solid rgba(251, 113, 133, 0.4);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 0 18px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 160ms ease;
       }
 
       .response {
@@ -905,6 +922,9 @@
             <button id="sendBtn" class="send" type="submit">
               <span id="sendLabel">Send</span>
             </button>
+            <button id="stopBtn" class="stop-btn hidden" type="button">
+              <span>⏹ Stop</span>
+            </button>
           </form>
 
           <div class="response" id="responsePane">
@@ -926,6 +946,7 @@
       let galleryState = {}; // Gallery current index state per exercise (Source 2 inspired)
       let instructionState = {}; // Collapsible instruction state per exercise (Source 3 inspired)
       let showingSavedOnly = false; // Filter state for saved items
+      let abortController = null; // Controller to cancel active fetch stream requests
 
       // Restore saved exercises from localStorage on init (Source 1 inspired)
       if (localStorage.getItem("savedExercises")) {
@@ -1067,6 +1088,7 @@
       const queryForm = document.getElementById("queryForm");
       const sendBtn = document.getElementById("sendBtn");
       const sendLabel = document.getElementById("sendLabel");
+      const stopBtn = document.getElementById("stopBtn");
       const toggleBookmarksBtn = document.getElementById("toggleBookmarksBtn");
 
       function startThinkingAnimation() {
@@ -1568,6 +1590,20 @@
         reader.readAsDataURL(file);
       }
 
+      function stopGeneration() {
+        if (abortController) {
+          abortController.abort();
+          abortController = null;
+        }
+        stopThinkingAnimation();
+        state.loading = false;
+        sendBtn.disabled = false;
+        sendLabel.textContent = "Send";
+        stopBtn.classList.add("hidden");
+        sendBtn.classList.remove("hidden");
+        setStatus("Generation stopped by user.");
+      }
+
       async function handleSubmit(event) {
         event.preventDefault();
         showingSavedOnly = false;
@@ -1581,11 +1617,13 @@
           return;
         }
 
+        abortController = new AbortController();
         state.loading = true;
         state.response = "";
         startThinkingAnimation();
         sendBtn.disabled = true;
-        sendLabel.textContent = "...";
+        sendBtn.classList.add("hidden");
+        stopBtn.classList.remove("hidden");
         setStatus("Connecting to backend...");
 
         try {
@@ -1600,6 +1638,7 @@
               inbody_image: state.inbodyImageBase64,
               use_rag: true,
             }),
+            signal: abortController.signal,
           });
 
           if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
@@ -1624,6 +1663,10 @@
           setStatus("Response complete.");
         } catch (error) {
           stopThinkingAnimation();
+          if (error.name === "AbortError") {
+            console.log("Fetch aborted by user.");
+            return;
+          }
           state.response =
             "❌ Error connecting to backend server. Verify your API endpoint URL and CORS settings.";
           renderResponse();
@@ -1633,8 +1676,13 @@
           state.loading = false;
           sendBtn.disabled = false;
           sendLabel.textContent = "Send";
+          stopBtn.classList.add("hidden");
+          sendBtn.classList.remove("hidden");
+          abortController = null;
         }
       }
+
+      stopBtn.addEventListener("click", stopGeneration);
 
       toggleBookmarksBtn.addEventListener("click", () => {
         showingSavedOnly = !showingSavedOnly;
