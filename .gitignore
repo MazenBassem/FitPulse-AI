@@ -32,3 +32,22 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Environment variables & API keys
+.env
+*.env
+
+# Model weights & large datasets
+*.gguf
+*.safetensors
+*.bin
+*.pth
+*.onnx
+models/
+
+# Dependencies & virtual environments
+venv/
+.venv/
+node_modules/
+__pycache__/
+.DS_Store
