@@ -913,6 +913,29 @@
 
         <section class="stack">
           <form class="query-form" id="queryForm">
+            <button
+              id="labelScanBtn"
+              type="button"
+              class="bookmark-toggle-btn"
+              title="Scan Nutrition Label"
+              style="
+                padding: 10px 14px;
+                background: rgba(16, 185, 129, 0.12);
+                border-color: rgba(16, 185, 129, 0.3);
+                color: #34d399;
+              "
+            >
+              📷 <span style="font-size: 0.82rem">Scan Label</span>
+            </button>
+
+            <!-- Keep the file input OUTSIDE the button -->
+            <input
+              type="file"
+              id="labelFileInput"
+              accept="image/*"
+              style="display: none !important"
+            />
+
             <input
               id="query"
               class="query-input"
@@ -1715,6 +1738,28 @@
         renderResponse();
         setStatus("Injected test payload into response pane.");
       });
+      const labelScanBtn = document.getElementById("labelScanBtn");
+      const labelFileInput = document.getElementById("labelFileInput");
+
+      if (labelScanBtn && labelFileInput) {
+        labelScanBtn.addEventListener("click", () => {
+          labelFileInput.click();
+        });
+
+        labelFileInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const queryInput = document.getElementById("queryInput");
+          if (queryInput) {
+            queryInput.value = `[Uploaded Nutrition Label: ${file.name}] - Please analyze macros and calories from this label.`;
+          }
+
+          if (typeof setStatus === "function") {
+            setStatus(`Label uploaded: ${file.name}`);
+          }
+        });
+      }
 
       // App initialization
       initExerciseCatalog();
