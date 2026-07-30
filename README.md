@@ -50,11 +50,14 @@ cd FitPulse-AI
 ```
 
 2. **Set up environment variables:**
-   Create a `.env` or configuration file in the root directory and add your LLM API credentials:
+   Create a `.env` or configuration file in the root directory and add your API credentials:
+
+   * **Gemini API Key:** Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey) (see the official [Gemini API Key Quickstart](https://ai.google.dev/gemini-api/docs/api-key)).
+   * **ngrok Configuration:** If you are tunneling your local server, follow the official [ngrok Getting Started Guide](https://ngrok.com/docs/getting-started/) to obtain your auth token.
 
 ```env
-API_KEY=your_llm_api_key_here
-
+GEMINI_API_KEY=your_gemini_api_key_here
+NGROK_AUTHTOKEN=your_ngrok_auth_token_here
 ```
 
 3. **Run locally:**
