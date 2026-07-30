@@ -1207,6 +1207,8 @@
         apiUrl: document.getElementById("apiUrl").value.trim(),
         inbodyPreview: null,
         inbodyImageBase64: null,
+        labelFileName: "", // Added: Track uploaded label name
+        labelImageBase64: null, // Added: Base64 image payload
         response: "",
         loading: false,
       };
@@ -1737,7 +1739,23 @@
         reader.onloadend = () => {
           state.inbodyPreview = reader.result;
           state.inbodyImageBase64 = reader.result;
+
+          // 🔴 ADD THIS: Clear Label image state so InBody takes clean priority
+          state.labelFileName = "";
+          state.labelImageBase64 = null;
+          const labelFileInput = document.getElementById("labelFileInput");
+          if (labelFileInput) labelFileInput.value = "";
           renderUploadArea();
+
+          // Auto-fill prompt if input is empty
+          const queryInput = document.getElementById("query");
+          if (queryInput && !queryInput.value.trim()) {
+            queryInput.value =
+              "Analyze my InBody scan and recommend a personalized workout and nutrition plan.";
+            state.query = queryInput.value;
+          }
+
+          updateLabelScanUI(); // Reset label button UI
           setStatus("InBody image attached to context.");
         };
         reader.readAsDataURL(file);
@@ -1765,6 +1783,9 @@
         state.query = queryInput.value.trim();
         state.apiUrl = apiUrlInput.value.trim();
 
+        // clear prompt area
+        queryInput.value = "";
+
         if (!state.query) {
           setStatus("Enter a prompt before sending.", true);
           return;
@@ -1779,6 +1800,13 @@
         stopBtn.classList.remove("hidden");
         setStatus("Connecting to backend...");
 
+        // 🔴 PLACE THIS DEBUG LOG RIGHT HERE BEFORE THE FETCH CALL
+        console.log("🚀 Payload being sent to backend:", {
+          query: state.query,
+          inbody_image_present: !!state.inbodyImageBase64,
+          label_image_present: !!state.labelImageBase64,
+        });
+
         try {
           const res = await fetch(state.apiUrl, {
             method: "POST",
@@ -1789,6 +1817,7 @@
             body: JSON.stringify({
               query: state.query,
               inbody_image: state.inbodyImageBase64,
+              label_image: state.labelImageBase64, // Must match Pydantic model ChatRequest field name
               use_rag: true,
             }),
             signal: abortController.signal,
@@ -1832,6 +1861,10 @@
           stopBtn.classList.add("hidden");
           sendBtn.classList.remove("hidden");
           abortController = null;
+          state.labelImageBase64 = null;
+          state.labelFileName = "";
+          state.query = "";
+          updateLabelScanUI();
         }
       }
 
@@ -1868,29 +1901,91 @@
         renderResponse();
         setStatus("Injected test payload into response pane.");
       });
+      // 1. Dedicated state fields mirroring InBody scan state
+      // state.labelFileName
+      // state.labelImageBase64
+
+      // 2. Separate handler functions matching InBody logic pattern
+      function handleLabelFileUpload(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          state.labelFileName = file.name;
+          state.labelImageBase64 = reader.result;
+
+          // 🔴 ADD THIS: Clear InBody image state to prevent backend route priority conflict
+          state.inbodyImageBase64 = null;
+          state.inbodyPreview = null;
+          renderUploadArea(); // Refresh InBody UI card to empty state
+
+          // Auto-fill prompt if input is empty
+          const queryInput = document.getElementById("query");
+          if (queryInput && !queryInput.value.trim()) {
+            queryInput.value =
+              "Analyze macros and nutrition details from this uploaded label.";
+            state.query = queryInput.value;
+          }
+
+          updateLabelScanUI();
+          setStatus("Nutrition label image attached to context.");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function removeLabelImage() {
+        state.labelFileName = "";
+        state.labelImageBase64 = null;
+
+        const labelFileInput = document.getElementById("labelFileInput");
+        if (labelFileInput) labelFileInput.value = "";
+
+        updateLabelScanUI();
+        setStatus("Nutrition label scan removed.");
+      }
+
+      function updateLabelScanUI() {
+        const labelScanBtn = document.getElementById("labelScanBtn");
+        if (!labelScanBtn) return;
+
+        if (state.labelImageBase64) {
+          labelScanBtn.style.background = "rgba(16, 185, 129, 0.25)";
+          labelScanBtn.style.borderColor = "var(--accent)";
+          labelScanBtn.innerHTML = `
+      ✓ <span style="font-size: 0.82rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle;">${escapeHtml(state.labelFileName)}</span>
+      <span id="removeLabelBtn" style="margin-left: 6px; cursor: pointer; opacity: 0.8; font-weight: bold;" title="Remove Label">✕</span>
+    `;
+
+          // Attach click handler for removing the image
+          const removeLabelBtn = document.getElementById("removeLabelBtn");
+          if (removeLabelBtn) {
+            removeLabelBtn.onclick = (e) => {
+              e.stopPropagation();
+              removeLabelImage();
+            };
+          }
+        } else {
+          labelScanBtn.style.background = "rgba(16, 185, 129, 0.12)";
+          labelScanBtn.style.borderColor = "rgba(16, 185, 129, 0.3)";
+          labelScanBtn.innerHTML = `📷 <span style="font-size: 0.82rem">Scan Label</span>`;
+        }
+      }
+
+      // 3. Initialize event listeners matching the standard DOM bindings
       const labelScanBtn = document.getElementById("labelScanBtn");
       const labelFileInput = document.getElementById("labelFileInput");
 
       if (labelScanBtn && labelFileInput) {
         labelScanBtn.addEventListener("click", () => {
-          labelFileInput.click();
-        });
-
-        labelFileInput.addEventListener("change", (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-
-          const queryInput = document.getElementById("queryInput");
-          if (queryInput) {
-            queryInput.value = `[Uploaded Nutrition Label: ${file.name}] - Please analyze macros and calories from this label.`;
-          }
-
-          if (typeof setStatus === "function") {
-            setStatus(`Label uploaded: ${file.name}`);
+          // Only trigger file picker if an image isn't currently loaded
+          if (!state.labelImageBase64) {
+            labelFileInput.click();
           }
         });
+
+        labelFileInput.addEventListener("change", handleLabelFileUpload);
       }
-
       // Welcome Widget Handler
       const welcomeWidget = document.getElementById("welcomeWidget");
       const welcomeApiUrlInput = document.getElementById("welcomeApiUrl");
