@@ -848,13 +848,143 @@
       .error {
         color: var(--danger);
       }
+
+      /* Welcome Widget Styles */
+      .welcome-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.88);
+        backdrop-filter: blur(14px);
+        display: grid;
+        place-items: center;
+        z-index: 9999;
+        padding: 20px;
+        transition:
+          opacity 250ms ease,
+          visibility 250ms ease;
+      }
+
+      .welcome-overlay.hidden-widget {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .welcome-card {
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid var(--border-strong);
+        box-shadow: 0 32px 96px rgba(0, 0, 0, 0.7);
+        border-radius: 28px;
+        padding: 36px 32px;
+        max-width: 440px;
+        width: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .welcome-logo {
+        margin-bottom: 16px;
+      }
+
+      .welcome-logo .brand-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+        border-radius: 20px;
+      }
+
+      .welcome-card h2 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        background: linear-gradient(90deg, #34d399 0%, #99f6e4 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .welcome-card p {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .welcome-input-group {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 20px;
+      }
+
+      .welcome-input-group label {
+        display: block;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #94a3b8;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .welcome-input-group input {
+        width: 100%;
+      }
+
+      .welcome-btn {
+        width: 100%;
+        height: 48px;
+        font-size: 0.98rem;
+      }
     </style>
   </head>
   <body>
+    <!-- Welcome Setup Widget Overlay -->
+    <div id="welcomeWidget" class="welcome-overlay">
+      <div class="welcome-card">
+        <div class="welcome-logo">
+          <img
+            src="assets/logo.png"
+            alt="FitPulse AI Logo"
+            class="brand-icon"
+            width="64"
+            height="64"
+          />
+          <!-- <div class="brand-icon">❤</div> -->
+        </div>
+        <h2>Welcome to FitPulse AI</h2>
+        <p>
+          Your AI assistant powered by Qwen2.5 & InBody RAG. Connect your
+          backend endpoint to begin.
+        </p>
+
+        <div class="welcome-input-group">
+          <label for="welcomeApiUrl">Ngrok Tunnel Endpoint</label>
+          <input
+            id="welcomeApiUrl"
+            class="query-input"
+            type="text"
+            value="https://gumdrop-paralyses-replica.ngrok-free.dev/api/chat"
+            placeholder="https://your-ngrok-url.ngrok-free.dev/api/chat"
+          />
+        </div>
+
+        <button id="welcomeConnectBtn" class="send welcome-btn" type="button">
+          Connect & Get Started →
+        </button>
+      </div>
+    </div>
+
     <div class="app">
       <header class="header">
         <div class="brand">
-          <div class="brand-icon">❤</div>
+          <img
+            src="assets/logo.png"
+            alt="FitPulse AI Logo"
+            class="brand-icon"
+            width="64"
+            height="64"
+          />
           <div>
             <h1>FitPulse AI Engine</h1>
             <p>Fine-Tuned Qwen2.5 + LlamaIndex InBody RAG</p>
@@ -1760,6 +1890,29 @@
           }
         });
       }
+
+      // Welcome Widget Handler
+      const welcomeWidget = document.getElementById("welcomeWidget");
+      const welcomeApiUrlInput = document.getElementById("welcomeApiUrl");
+      const welcomeConnectBtn = document.getElementById("welcomeConnectBtn");
+
+      // Auto-restore saved endpoint if user has configured it previously
+      const savedApiUrl = localStorage.getItem("fitpulse_api_url");
+      if (savedApiUrl) {
+        apiUrlInput.value = savedApiUrl;
+        welcomeApiUrlInput.value = savedApiUrl;
+        state.apiUrl = savedApiUrl;
+      }
+
+      welcomeConnectBtn.addEventListener("click", () => {
+        const url = welcomeApiUrlInput.value.trim();
+        if (url) {
+          apiUrlInput.value = url;
+          state.apiUrl = url;
+          localStorage.setItem("fitpulse_api_url", url);
+        }
+        welcomeWidget.classList.add("hidden-widget");
+      });
 
       // App initialization
       initExerciseCatalog();
