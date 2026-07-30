@@ -92,10 +92,10 @@ python -m http.server 4173 --bind 127.0.0.1
 _Dashboard preview and scanning workflow:_
 
 _Figure 1: Main FitPulse AI interface_
-[![FitPulse AI Dashboard](assets\dashboard2.png)](assets\dashboard2.png)
+[![FitPulse AI Dashboard](assets/dashboard2.png)](assets/dashboard2.png)
 
 _Figure 2: Nutrition label scan in action_
-[![Nutrition AI Dashboard](assets\inBody.png)](assets\inBody.png)
+[![Nutrition AI Dashboard](assets/inBody.png)](assets/inBody.png)
 
 ---
 
