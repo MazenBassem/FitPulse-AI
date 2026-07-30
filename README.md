@@ -51,9 +51,8 @@ cd FitPulse-AI
 
 2. **Set up environment variables:**
    Create a `.env` or configuration file in the root directory and add your API credentials:
-
-   * **Gemini API Key:** Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey) (see the official [Gemini API Key Quickstart](https://ai.google.dev/gemini-api/docs/api-key)).
-   * **ngrok Configuration:** If you are tunneling your local server, follow the official [ngrok Getting Started Guide](https://ngrok.com/docs/getting-started/) to obtain your auth token.
+   - **Gemini API Key:** Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey) (see the official [Gemini API Key Quickstart](https://ai.google.dev/gemini-api/docs/api-key)).
+   - **ngrok Configuration:** If you are tunneling your local server, follow the official [ngrok Getting Started Guide](https://ngrok.com/docs/getting-started/) to obtain your auth token.
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -93,11 +92,10 @@ python -m http.server 4173 --bind 127.0.0.1
 _Dashboard preview and scanning workflow:_
 
 _Figure 1: Main FitPulse AI interface_
-[![FitPulse AI Dashboard](assets/fitpulse_dashboard.png)](assets/fitpulse_dashboard.png)
+[![FitPulse AI Dashboard](assets\dashboard2.png)](assets\dashboard2.png)
 
 _Figure 2: Nutrition label scan in action_
-
-> _Note: Replace the image paths above with the actual file paths where you upload your dashboard screenshots in your repository (e.g., inside an `assets/` or `images/` folder)._
+[![Nutrition AI Dashboard](assets\inBody.png)](assets\inBody.png)
 
 ---
 
